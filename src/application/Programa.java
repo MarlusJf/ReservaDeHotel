@@ -3,27 +3,25 @@ package application;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import model.entities.Reservation;
+import model.exceptions.DomainExceptions;
 
 public class Programa {
 
-	public static void main(String[] args) throws ParseException {
+	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		try {
+			System.out.print("Room number: ");
+			int number = sc.nextInt();
+			System.out.print("Check-in date (dd/mm/yyyy) ");
+			Date checkin = sdf.parse(sc.next());
+			System.out.print("check-out date (dd/mm/yyyy) ");
+			Date checkout = sdf.parse(sc.next());
 
-		System.out.print("Room number: ");
-		int number = sc.nextInt();
-		System.out.print("Check-in date (dd/mm/yyyy) ");
-		Date checkin = sdf.parse(sc.next());
-		System.out.print("check-out date (dd/mm/yyyy) ");
-		Date checkout = sdf.parse(sc.next());
-
-		if (!checkout.after(checkin)) { // Estou comparando se a data de saida é posterior a data de entrada.
-			System.out.println("Error in reservation: check-out date must be after check-in date");
-			System.out.println("Erro na reserva: a data do check-out deve ser posterior à data do check-in");
-		} else {
 			Reservation reservation = new Reservation(number, checkin, checkout);
 			System.out.println("Reservation: " + reservation);
 
@@ -37,15 +35,19 @@ public class Programa {
 			System.out.print("check-out date (dd/mm/yyyy) ");
 			checkout = sdf.parse(sc.next());
 
-			String error = reservation.updatesDate(checkin, checkout);
-			if(error != null) {
-				System.out.println("error in reservation: "+error);
-			} else {
-				System.out.println("Reservation: " + reservation);
-			}
-			
-
+			reservation.updatesDate(checkin, checkout);
+			System.out.println("Reservation: " + reservation);
+		} 
+		catch (ParseException e) {
+			System.out.println("Data inválida");
 		}
+		catch(DomainExceptions e) {
+			System.out.println("Error in reservation: "+e.getMessage());
+		}
+		catch(RuntimeException e) { // Com esse catch, eu trato todas as exceções do tipo RunTimeException
+			System.out.println("Erro!");
+		}
+
 	}
 
 }
